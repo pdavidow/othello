@@ -1,15 +1,19 @@
 module Board
     ( initialBoard
     , board_DisplayString
+
+
+    , rowIndexRange
     )
     where
 
 -- invariant: flipCount for 4 corners == 0
 
 
-import Data.Vector as V ( Vector, (!), (//), fromList, map, toList )
+import Data.Vector as V ( Vector, (!), (//), fromList, imap, map, toList )
 import Data.Ix as Ix ( Ix, index, range )
 import Data.Function ( (&) )
+import Control.Lens
 
 
 data RowIndex = R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 deriving (Eq, Ix, Ord, Show)
@@ -92,12 +96,20 @@ boardSquare_DisplayString boardSquare =
 
 boardRow_DisplayString :: BoardRow -> String          
 boardRow_DisplayString (BoardRow v) =
-        concat $ V.toList $ V.map boardSquare_DisplayString v
+    concat $ V.toList $ V.map boardSquare_DisplayString v
 
 
-board_DisplayString :: Board -> String
-board_DisplayString (Board v) =
-        concat $ V.toList $ V.map (\x -> boardRow_DisplayString x ++ "\n") v
+board_DisplayString :: Bool -> Board -> String
+board_DisplayString isDisplayLegend (Board v) =
+    let
+        colLegend = "   " ++ (concat $ Prelude.map (\c -> show c ++ " ") colIndexRange)
+        rowLegend i = if isDisplayLegend then maybe "" (\r -> show r ++ " ") $ rowIndexRange ^? element i else "" -- lens
+        boardString = concat $ V.toList $ V.imap (\i r -> rowLegend i ++ boardRow_DisplayString r ++ "\n") v
+    in
+        if isDisplayLegend then
+            colLegend ++ "\n" ++ boardString
+        else
+            boardString
 
 
 boardRow :: RowIndex -> Board -> BoardRow
@@ -109,7 +121,6 @@ squareAt :: Position -> Board -> BoardSquare
 squareAt (Position r c) board = 
     v ! colIndexInt c
         where (BoardRow v) = boardRow r board
-
 
 
 emptyBoard :: Board
