@@ -10,7 +10,7 @@ module Board
 -- invariant: flipCount for 4 corners == 0
 
 
-import Data.Vector as V ( Vector, (!), (//), fromList, imap, map, toList )
+import Data.Vector as V ( Vector, (!?), (//), fromList, imap, map, toList )
 import Data.Ix as Ix ( Ix, index, range )
 import Data.Function ( (&) )
 import Control.Lens
@@ -112,15 +112,14 @@ board_DisplayString isDisplayLegend (Board v) =
             boardString
 
 
-boardRow :: RowIndex -> Board -> BoardRow
-boardRow r (Board v) = 
-    v ! rowIndexInt r
+mbBoardRow :: RowIndex -> Board -> Maybe BoardRow
+mbBoardRow r (Board v) = 
+    v !? rowIndexInt r
 
 
-squareAt :: Position -> Board -> BoardSquare
-squareAt (Position r c) board = 
-    v ! colIndexInt c
-        where (BoardRow v) = boardRow r board
+mbSquareAt :: Position -> Board -> Maybe BoardSquare
+mbSquareAt (Position r c) board = 
+    mbBoardRow r board >>= (\ (BoardRow v) -> v !? colIndexInt c)
 
 
 emptyBoard :: Board
