@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import Board ( board_DisplayString, initialBoard )
+
 
 main :: IO ()
-main = someFunc
+main = putStr $ board_DisplayString initialBoard
