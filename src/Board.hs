@@ -13,7 +13,6 @@ module Board
 import Data.Vector as V ( Vector, (!), (//), fromList, imap, map, toList )
 import Data.Ix as Ix ( Ix, index, range )
 import Data.Function ( (&) )
-import Control.Lens
 
 
 data RowIndex = R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 deriving (Eq, Ix, Ord, Show)
@@ -103,7 +102,7 @@ board_DisplayString :: Bool -> Board -> String
 board_DisplayString isDisplayLegend (Board v) =
     let
         colLegend = "   " ++ (concat $ Prelude.map (\c -> show c ++ " ") colIndexRange)
-        rowLegend i = if isDisplayLegend then maybe "" (\r -> show r ++ " ") $ rowIndexRange ^? element i else "" -- lens
+        rowLegend i = if isDisplayLegend then (show $ rowIndexRange !! i) ++ " " else "" 
         boardString = concat $ V.toList $ V.imap (\i r -> rowLegend i ++ boardRow_DisplayString r ++ "\n") v
     in
         if isDisplayLegend then
